@@ -16,7 +16,7 @@ const defaultErrors: { [key: string]: ErrorConfig } = {
     code: "Error_OtpOverLimit",
   },
   invalidPhone: {
-    message: "Phone number is incorrect and doesn't exist",
+    message: "Phone number is incorrect",
     status: 400,
     code: "Error_Invalid",
   },
@@ -144,4 +144,6 @@ export const Errors = {
   checkAuthorize: () => defaultErrors.checkAuthorize,
 
   notVerifyPhone: () => defaultErrors.notVerifyPhone,
+
+  invalidPhone: () => defaultErrors.invalidPhone,
 };

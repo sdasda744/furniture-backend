@@ -7,7 +7,7 @@ import {
   logout,
   forgotPassword,
   verifyOtpForResetPassword,
-  resetPassword,
+  confirmResetPassword,
 } from "../../controllers/authController";
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.post("/confirm-password", confirmPassword);
 router.post("/login", login);
 router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);
-router.post("/verify-otp-forgot-password", verifyOtpForResetPassword);
-router.post("/reset-password", resetPassword)
+router.post("/verifyOtp-forgot-password", verifyOtpForResetPassword);
+router.post("/reset-password", confirmResetPassword)
 
 export default router;

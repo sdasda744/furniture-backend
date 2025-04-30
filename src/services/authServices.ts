@@ -55,9 +55,33 @@ export const getUserByID = async (id: number) => {
 };
 
 // for reset password
-export const updateOtpByPhone = async (phone: string, otpData: any) => {
-  return await prisma.otp.update({
-    where: { phone },
-    data: otpData,
+
+export const getPhoneAndRememberToken = async (phone: string, token: string) => {
+  return await prisma.otp.findFirst({
+    where: {
+      phone,
+      rememberToken: token,
+    },
+  });
+};
+
+export const getPhoneAndVerifyToken = async (phone: string, token: string) => {
+  return await prisma.otp.findFirst({
+    where: {
+      phone,
+      verifyToken: token,
+    },
+  });
+};
+
+export const getOtpByToken = async (token: string) => {
+  return await prisma.otp.findFirst({
+    where: { rememberToken: token },
+  });
+};
+
+export const getOtpByVerifyToken = async (token: string) => {
+  return await prisma.otp.findFirst({
+    where: { verifyToken: token },
   });
 };

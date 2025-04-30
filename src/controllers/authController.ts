@@ -8,10 +8,13 @@ import {
   createOtp,
   createUser,
   getOtpByPhone,
+  getOtpByToken,
+  getOtpByVerifyToken,
+  getPhoneAndRememberToken,
+  getPhoneAndVerifyToken,
   getUserByID,
   getUserByPhone,
   updateOtp,
-  updateOtpByPhone,
   updateUser,
 } from "../services/authServices";
 import {
@@ -565,12 +568,6 @@ export const forgotPassword = [
     const user = await getUserByPhone(phone);
     checkUserIfNotExit(user);
 
-    const userData = {
-      randomToken: generateToken(),
-    };
-
-    await updateUser(user!.id, userData);
-
     if (user?.status === "FREEZE") {
       return next(Errors.unauthenticated());
     }
@@ -578,6 +575,11 @@ export const forgotPassword = [
     if (!user?.randomToken) {
       return next(Errors.unauthenticated());
     }
+
+    const userData = {
+      randomToken: generateToken(),
+    };
+    await updateUser(user!.id, userData);
 
     // hash otp
     const otp = 778899; // new otp testing
@@ -681,9 +683,31 @@ export const verifyOtpForResetPassword = [
       return next(Errors.unauthenticated());
     }
 
-    // if (existingOtpRecord.phone !== phone) {
-    //   return next(Errors.InvalidToken())
-    // }
+    // if the phone number is wrong in verify state, they will get error.
+    const checkPhoneAndRememberToken = await getPhoneAndRememberToken(
+      phone,
+      token
+    );
+    if (
+      !checkPhoneAndRememberToken ||
+      checkPhoneAndRememberToken.phone !== phone
+    ) {
+      // Safely get the correct phone using just the token
+      const correctOtpRecord = await getOtpByToken(token);
+      if (correctOtpRecord) {
+        if (correctOtpRecord.error >= 4) {
+          const otpData = {
+            error: { increment: 1 },
+          };
+          await updateOtp(correctOtpRecord.id, otpData);
+          return next(Errors.unauthenticated());
+        }
+        await updateOtp(correctOtpRecord.id, {
+          error: { increment: 1 },
+        });
+        return next(Errors.invalidPhone());
+      }
+    }
 
     const lastVerifyOtpDate = new Date(
       existingOtpRecord!.updatedAt
@@ -749,7 +773,7 @@ export const verifyOtpForResetPassword = [
 ];
 
 // reset password
-export const resetPassword = [
+export const confirmResetPassword = [
   body("phone", "Invalid Phone Number.")
     .trim()
     .notEmpty()
@@ -799,6 +823,26 @@ export const resetPassword = [
       return next(Errors.unauthenticated());
     }
 
+    // if the phone number is wrong in verify state, they will get error.
+    const checkPhoneAndVerifyToken = await getPhoneAndVerifyToken(phone, token);
+    if (!checkPhoneAndVerifyToken || checkPhoneAndVerifyToken.phone !== phone) {
+      // Safely get the correct phone using just the token
+      const correctOtpRecord = await getOtpByVerifyToken(token);
+      if (correctOtpRecord) {
+        if (correctOtpRecord.error >= 4) {
+          const otpData = {
+            error: { increment: 1 },
+          };
+          await updateOtp(correctOtpRecord.id, otpData);
+          return next(Errors.unauthenticated());
+        }
+        await updateOtp(correctOtpRecord.id, {
+          error: { increment: 1 },
+        });
+        return next(Errors.invalidPhone());
+      }
+    }
+
     // This is also untrusted
     if (existingOtpRecord?.verifyToken !== token) {
       const otpData = {
@@ -827,21 +871,21 @@ export const resetPassword = [
     const accessTokenPayload = { id: user.id };
     const refreshTokenPayload = { id: user.id, phone: user.phone };
 
-    const accessToken = jwt.sign(
-      accessTokenPayload,
-      process.env.ACCESS_TOKEN_SECRET!,
-      { 
-        expiresIn: 2 * 60,
-      }
-    );
+    // const accessToken = jwt.sign(
+    //   accessTokenPayload,
+    //   process.env.ACCESS_TOKEN_SECRET!,
+    //   {
+    //     expiresIn: 2 * 60,
+    //   }
+    // );
 
-    const refreshToken = jwt.sign(
-      refreshTokenPayload,
-      process.env.REFRESH_TOKEN_SECRET!,
-      {
-        expiresIn: "30d",
-      }
-    );
+    // const refreshToken = jwt.sign(
+    //   refreshTokenPayload,
+    //   process.env.REFRESH_TOKEN_SECRET!,
+    //   {
+    //     expiresIn: "30d",
+    //   }
+    // );
 
     const userUpdateData = {
       password: hashedPassword,
@@ -857,13 +901,11 @@ export const resetPassword = [
     };
     await updateOtp(existingOtpRecord.id, otpData);
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Password reset successfully.",
-        userID: user.id,
-        phone: user.phone,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully.",
+      userID: user.id,
+      phone: user.phone,
+    });
   },
 ];
