@@ -14,11 +14,11 @@ export const authorize = (permission: boolean, ...roles: string[]) => {
     const result = roles.includes(user.role);
 
     if (permission && !result) {
-      return next(Errors.checkAuthorize());
+      return next(Errors.unauthorized());
     }
 
     if (!permission && result) {
-      return next(Errors.checkAuthorize());
+      return next(Errors.unauthorized());
     }
 
     req.user = user;

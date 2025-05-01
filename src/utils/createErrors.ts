@@ -4,146 +4,118 @@ type ErrorConfig = {
   code: string;
 };
 
-const defaultErrors: { [key: string]: ErrorConfig } = {
+const defaultErrors: Record<string, ErrorConfig> = {
   userAlreadyExists: {
     message: "User is already registered.",
     status: 409,
-    code: "Error_UserAlreadyExit",
+    code: "ERROR_USER_EXISTS",
   },
   otpOverLimit: {
-    message: "OTP is wrong for 5 times. Please try again tomorrow.",
+    message: "Too many incorrect OTP attempts. Please try again tomorrow.",
     status: 401,
-    code: "Error_OtpOverLimit",
+    code: "ERROR_OTP_LIMIT",
   },
   invalidPhone: {
-    message: "Phone number is incorrect",
+    message: "The phone number is invalid.",
     status: 400,
-    code: "Error_Invalid",
+    code: "ERROR_INVALID_PHONE",
   },
   notRegistered: {
-    message: "This user is not registered",
+    message: "This phone number is not registered.",
     status: 401,
-    code: "Error_Unauthenticated",
+    code: "ERROR_NOT_REGISTERED",
   },
   otpRequestLimit: {
-    message: "OTP is allowed to request for 3 times per day.",
-    status: 405,
-    code: "Error_OverLimit",
+    message: "OTP request limit reached. Try again later.",
+    status: 429,
+    code: "ERROR_OTP_REQUEST_LIMIT",
   },
   invalidToken: {
-    message: "Invalid Token",
+    message: "Invalid verification token.",
     status: 400,
-    code: "Error_Invalid",
+    code: "ERROR_INVALID_TOKEN",
   },
   otpExpired: {
-    message: "OTP is expired.",
+    message: "OTP has expired.",
     status: 403,
-    code: "Error_OTPExpired",
+    code: "ERROR_OTP_EXPIRED",
   },
   requestAttack: {
-    message: "This request may be attack.",
+    message: "Suspicious request detected.",
     status: 400,
-    code: "Error_Attack",
+    code: "ERROR_SUSPICIOUS_REQUEST",
   },
   accountFreeze: {
-    message: "Your account is temporally freeze, please contact us.",
-    status: 401,
-    code: "Error_AccountFreeze",
+    message: "Your account is temporarily frozen. Please contact support.",
+    status: 403,
+    code: "ERROR_ACCOUNT_FREEZE",
   },
-
   unauthenticated: {
-    message: "You are not authenticated user!",
+    message: "Authentication required.",
     status: 401,
-    code: "Error_Unauthenticated",
+    code: "ERROR_UNAUTHENTICATED",
   },
-
-  notExitPhoneNumberInOtp: {
-    message: "Phone number is incorrect and doesn't exit",
+  nonExistentPhoneNumberInOtp: {
+    message: "The phone number is incorrect or does not exist.",
     status: 400,
-    code: "Error_Invalid",
+    code: "ERROR_PHONE_NOT_FOUND_OTP",
   },
-
-  notExitPhoneNumberInUser: {
-    message: "This phone number is not registered",
+  nonExistentPhoneNumberInUser: {
+    message: "This phone number is not registered.",
     status: 401,
-    code: "Error_Unauthenticated",
+    code: "ERROR_PHONE_NOT_FOUND_USER",
   },
-
   otpIncorrect: {
-    message: "OTP is incorrect.",
+    message: "Incorrect OTP.",
     status: 401,
-    code: "Error_Invalid",
+    code: "ERROR_OTP_INCORRECT",
   },
-
   requestExpired: {
-    message: "Your request is expired. Please try again!",
+    message: "Your request has expired. Please try again.",
     status: 403,
-    code: "Error_RequestExpired",
+    code: "ERROR_REQUEST_EXPIRED",
   },
-
-  WrongPassword: {
-    message: "Password is wrong.",
+  wrongPassword: {
+    message: "Incorrect password.",
     status: 401,
-    code: "Error_Invalid",
+    code: "ERROR_WRONG_PASSWORD",
   },
-
-  checkAuthorize: {
-    message: "You are not allowed user.",
+  unauthorized: {
+    message: "You are not authorized to perform this action.",
     status: 403,
-    code: "Error_Unauthorized",
+    code: "ERROR_UNAUTHORIZED",
   },
-
-  notVerifyPhone: {
-    message: "This phone number is not verified",
+  phoneNotVerified: {
+    message: "Phone number has not been verified.",
     status: 400,
-    code: "Error_Invalid",
+    code: "ERROR_PHONE_NOT_VERIFIED",
   },
 };
 
 export const Errors = {
-  // With translations
-  alreadyExitUser: (req?: any) => ({
+  alreadyExistUser: (req?: any) => ({
     ...defaultErrors.userAlreadyExists,
-    message: req?.t
-      ? req.t("errors.userExists")
-      : defaultErrors.userAlreadyExists.message,
+    message:
+      req?.t?.("errors.userExists") || defaultErrors.userAlreadyExists.message,
   }),
-
-  // Without translations (direct usage)
   otpRequestLimit: () => defaultErrors.otpRequestLimit,
-
-  InvalidToken: () => defaultErrors.invalidToken,
-
+  invalidToken: () => defaultErrors.invalidToken,
   otpExpired: () => defaultErrors.otpExpired,
-
   requestAttack: () => defaultErrors.requestAttack,
-
-  freezeError: () => defaultErrors.accountFreeze,
-
+  accountFreeze: () => defaultErrors.accountFreeze,
   unauthenticated: () => defaultErrors.unauthenticated,
-
   otpOverLimit: () => defaultErrors.otpOverLimit,
-
-  notExitPhoneNumberInOtp: () => defaultErrors.notExitPhoneNumberInOtp,
-
-  notExitPhoneNumberInUser: () => defaultErrors.notExitPhoneNumberInUser,
-
+  nonExistentPhoneNumberInOtp: () => defaultErrors.nonExistentPhoneNumberInOtp,
+  nonExistentPhoneNumberInUser: () =>
+    defaultErrors.nonExistentPhoneNumberInUser,
   otpIncorrect: () => defaultErrors.otpIncorrect,
-
   requestExpired: () => defaultErrors.requestExpired,
-
-  wrongPassword: (req: any) => ({
+  wrongPassword: (req?: any) => ({
     ...defaultErrors.wrongPassword,
-    message: req?.t
-      ? req.t("wrongPassword")
-      : defaultErrors.wrongPassword.message,
+    message: req?.t?.("wrongPassword") || defaultErrors.wrongPassword.message,
   }),
-
   notRegistered: () => defaultErrors.notRegistered,
-
-  checkAuthorize: () => defaultErrors.checkAuthorize,
-
-  notVerifyPhone: () => defaultErrors.notVerifyPhone,
-
+  unauthorized: () => defaultErrors.unauthorized,
+  phoneNotVerified: () => defaultErrors.phoneNotVerified,
   invalidPhone: () => defaultErrors.invalidPhone,
 };

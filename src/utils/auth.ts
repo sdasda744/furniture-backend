@@ -6,7 +6,7 @@ export const checkUserExit = (user: any) => {
     // error.status = 409,
     // error.code = "Error_UserAlreadyExit"
     // throw error
-    throw Errors.alreadyExitUser();
+    throw Errors.alreadyExistUser();
   }
 };
 
@@ -30,7 +30,7 @@ export const checkExistingOtp = (otpRecord: any) => {
     // error.status = 400;
     // error.code = "Error_Invalid"
     // throw error;
-    throw Errors.notExitPhoneNumberInOtp();
+    throw Errors.nonExistentPhoneNumberInOtp();
   }
 };
 
@@ -41,6 +41,6 @@ export const checkUserIfNotExit = (user: any) => {
     // error.code = "Error_Unauthenticated";
     // throw error;
 
-    throw Errors.notExitPhoneNumberInUser();
+    throw Errors.nonExistentPhoneNumberInUser();
   }
 };

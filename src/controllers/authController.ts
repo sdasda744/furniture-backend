@@ -184,7 +184,7 @@ export const verifyOtp = [
       // error.status = 400;
       // error.code = "Error_Invalid";
       // return next(error);
-      return next(Errors.InvalidToken());
+      return next(Errors.invalidToken());
     }
 
     // check opt expired
@@ -292,7 +292,7 @@ export const confirmPassword = [
       // error.status = 400;
       // error.code = "Error_Invalid";
       // return next(error);
-      return next(Errors.InvalidToken());
+      return next(Errors.invalidToken());
     }
 
     const isExpired =
@@ -405,7 +405,7 @@ export const login = [
       // error.status = 401;
       // error.code = "Error_AccountFreeze";
       // return next(error);
-      return next(Errors.freezeError());
+      return next(Errors.accountFreeze());
     }
 
     const isMatchPassword = await bcrypt.compare(password, user!.password);
@@ -558,7 +558,7 @@ export const forgotPassword = [
     checkExistingOtp(existingOtpRecord);
 
     if (!existingOtpRecord?.verifyToken) {
-      return next(Errors.notVerifyPhone());
+      return next(Errors.phoneNotVerified());
     }
 
     if (existingOtpRecord?.error === 5) {
@@ -665,7 +665,7 @@ export const verifyOtpForResetPassword = [
     checkExistingOtp(existingOtpRecord);
 
     if (!existingOtpRecord?.verifyToken) {
-      return next(Errors.notVerifyPhone());
+      return next(Errors.phoneNotVerified());
     }
 
     if (existingOtpRecord?.error === 5) {
@@ -723,7 +723,7 @@ export const verifyOtpForResetPassword = [
         error: 5,
       };
       await updateOtp(existingOtpRecord.id, otpData);
-      return next(Errors.InvalidToken());
+      return next(Errors.invalidToken());
     }
 
     // check opt expired
@@ -806,7 +806,7 @@ export const confirmResetPassword = [
     checkExistingOtp(existingOtpRecord);
 
     if (!existingOtpRecord?.verifyToken) {
-      return next(Errors.notVerifyPhone());
+      return next(Errors.phoneNotVerified());
     }
 
     if (existingOtpRecord?.error === 5) {
@@ -855,7 +855,7 @@ export const confirmResetPassword = [
       };
       await updateUser(user.id, userData);
 
-      return next(Errors.InvalidToken());
+      return next(Errors.invalidToken());
     }
 
     const isExpired =
