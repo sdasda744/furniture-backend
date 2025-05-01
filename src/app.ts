@@ -10,11 +10,12 @@ import middleware from "i18next-http-middleware";
 import path from "path";
 
 import { limiter } from "./middlewares/rateLimiter";
-import { auth } from "./middlewares/auth";
-import authRoutes from "./routes/v1/auth";
-import adminRoutes from "./routes/v1/admin/user";
-import profileRoutes from "./routes/v1/api/user";
-import { authorize } from "./middlewares/authorise";
+import routes from "./routes/v1";
+// import { auth } from "./middlewares/auth";
+// import authRoutes from "./routes/v1/auth";
+// import adminRoutes from "./routes/v1/admin";
+// import profileRoutes from "./routes/v1/api/user";
+// import { authorize } from "./middlewares/authorise";
 // import healthRoutes from "./routes/v1/health";
 export const app = express();
 
@@ -61,9 +62,10 @@ i18next
 
 app.use(middleware.handle(i18next));
 
-app.use("/api/v1", authRoutes);
-app.use("/api/v1/admin", auth, authorize(true, "ADMIN"), adminRoutes);
-app.use("/api/v1", profileRoutes);
+// app.use("/api/v1", authRoutes);
+// app.use("/api/v1/admin", auth, authorize(true, "ADMIN"), adminRoutes);
+// app.use("/api/v1", profileRoutes);
+app.use(routes)
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   const message = error.message || "server error";
