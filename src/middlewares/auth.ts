@@ -61,7 +61,7 @@ export const auth = (req: CustomRequest, res: Response, next: NextFunction) => {
       accessTokenPayload,
       process.env.ACCESS_TOKEN_SECRET!,
       {
-        expiresIn: 2 * 60,
+        expiresIn: 15 * 60,
       }
     );
 
@@ -69,7 +69,7 @@ export const auth = (req: CustomRequest, res: Response, next: NextFunction) => {
       refreshTokenPayload,
       process.env.REFRESH_TOKEN_SECRET!,
       {
-        expiresIn: 15 * 60,
+        expiresIn: "30d",
       }
     );
 
