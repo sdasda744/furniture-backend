@@ -148,3 +148,11 @@ model Taggable {
   type String @db.VarChar(7)
   typeID Int
 }
+
+model Maintenance {
+  id Int @id @default(autoincrement())
+  key String @unique @db.VarChar(50)
+  value String @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -482,6 +482,7 @@ export const login = [
         success: true,
         message: "login",
         id: user!.id,
+        role: user!.role,
         phone: user!.phone,
       });
   },

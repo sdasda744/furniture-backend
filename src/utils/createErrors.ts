@@ -90,6 +90,12 @@ const defaultErrors: Record<string, ErrorConfig> = {
     status: 400,
     code: "ERROR_PHONE_NOT_VERIFIED",
   },
+  maintenanceModeMsg: {
+    message:
+      "This server is currently under maintenance. Please try again later.",
+    status: 503,
+    code: "ERROR_MAINTENANCE",
+  },
 };
 
 export const Errors = {
@@ -118,4 +124,5 @@ export const Errors = {
   unauthorized: () => defaultErrors.unauthorized,
   phoneNotVerified: () => defaultErrors.phoneNotVerified,
   invalidPhone: () => defaultErrors.invalidPhone,
+  maintenanceModeMsg: () => defaultErrors.maintenanceModeMsg,
 };

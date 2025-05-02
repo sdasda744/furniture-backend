@@ -8,9 +8,14 @@ import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 import middleware from "i18next-http-middleware";
 import path from "path";
+import cron from "node-cron";
 
 import { limiter } from "./middlewares/rateLimiter";
 import routes from "./routes/v1";
+import {
+  createOrUpdateMaintenanceStatus,
+  getMaintenanceStatusByKey,
+} from "./services/maintenanceService";
 // import { auth } from "./middlewares/auth";
 // import authRoutes from "./routes/v1/auth";
 // import adminRoutes from "./routes/v1/admin";
@@ -65,11 +70,20 @@ app.use(middleware.handle(i18next));
 // app.use("/api/v1", authRoutes);
 // app.use("/api/v1/admin", auth, authorize(true, "ADMIN"), adminRoutes);
 // app.use("/api/v1", profileRoutes);
-app.use(routes)
+app.use(routes);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   const message = error.message || "server error";
   const status = error.status || 500;
-  const errorCode = error.code || "Error_Code";
+  const errorCode = error.code || "Error_CodeFromServer";
   res.status(status).json({ message, error: errorCode });
 });
+
+// cron.schedule("* * * * *", async () => {
+//   console.log("Cron job is running every minute...");
+//   const maintenance = await getMaintenanceStatusByKey("maintenance");
+//   if (maintenance?.value === "true") {
+//     await createOrUpdateMaintenanceStatus("maintenance", "false");
+//     console.log("Maintenance mode is turn off");
+//   }
+// });
