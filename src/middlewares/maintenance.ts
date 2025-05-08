@@ -13,7 +13,7 @@ export const maintenanceMode = async (
 
   if (whiteList.includes(ip)) {
     console.log("IP OK", ip);
-    return next();
+   return next();
   } else {
     console.log("Bad IP", ip);
     const maintenance = await getMaintenanceStatusByKey("maintenance");

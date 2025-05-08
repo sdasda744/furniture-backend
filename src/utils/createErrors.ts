@@ -96,6 +96,11 @@ const defaultErrors: Record<string, ErrorConfig> = {
     status: 503,
     code: "ERROR_MAINTENANCE",
   },
+  checkProfileImage: {
+    message: "Invalid upload image",
+    status: 400,
+    code: "ERROR_PROFILE_UPLOAD",
+  },
 };
 
 export const Errors = {
@@ -125,4 +130,5 @@ export const Errors = {
   phoneNotVerified: () => defaultErrors.phoneNotVerified,
   invalidPhone: () => defaultErrors.invalidPhone,
   maintenanceModeMsg: () => defaultErrors.maintenanceModeMsg,
+  checkProfileImage: () => defaultErrors.checkProfileImage,
 };

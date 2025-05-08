@@ -49,7 +49,7 @@ model Post {
   title     String   @db.VarChar(255)
   content   String
   body String
-  image String @db.VarChar(255)
+  image String
   authorID Int
   author User @relation(fields: [authorID], references: [id])
   categoryID Int
@@ -58,6 +58,7 @@ model Post {
   type Type @relation(fields: [typeID], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tags PostTag[]
 }
 
 model Product {
@@ -77,6 +78,7 @@ model Product {
   updatedAt DateTime @updatedAt
   images Image[]
   products ProductsOnOrder[]
+  tags ProductTag[]
 }
 
 model Image {
@@ -89,14 +91,14 @@ model Image {
 
 model Category {
   id Int @id @default(autoincrement())
-  name String @db.VarChar(52)
+  name String @unique @db.VarChar(52)
   posts Post[]
   products Product[]
 }
 
 model Type {
   id Int @id @default(autoincrement())
-  name String @db.VarChar(52)
+  name String @unique @db.VarChar(52)
   posts Post[]
   products Product[]
 
@@ -135,19 +137,31 @@ model ProductsOnOrder {
   order Order @relation(fields: [orderID], references: [id])
 }
 
-model Tag {
-  id Int @id @default(autoincrement())
+model PostTag {
+   id Int @id @default(autoincrement())
   name String @db.VarChar(52)
-  taggable Taggable[]
+  posts Post[]
 }
 
-model Taggable {
-  id Int @id @default(autoincrement())
-  tagID Int
-  tag Tag @relation(fields: [tagID], references: [id])
-  type String @db.VarChar(7)
-  typeID Int
+model ProductTag {
+   id Int @id @default(autoincrement())
+  name String @db.VarChar(52)
+  products Product[]
 }
+
+// model Tag {
+//   id Int @id @default(autoincrement())
+//   name String @db.VarChar(52)
+//   taggable Taggable[]
+// }
+
+// model Taggable {
+//   id Int @id @default(autoincrement())
+//   tagID Int
+//   tag Tag @relation(fields: [tagID], references: [id])
+//   type String @db.VarChar(7)
+//   typeID Int
+// }
 
 model Maintenance {
   id Int @id @default(autoincrement())

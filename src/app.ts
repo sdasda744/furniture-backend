@@ -50,7 +50,8 @@ app
   .use(compression())
   .use(limiter);
 
-i18next
+  
+  i18next
   .use(Backend)
   .use(middleware.LanguageDetector)
   .init({
@@ -64,13 +65,14 @@ i18next
     fallbackLng: "en",
     preload: ["en", "mm"],
   });
-
-app.use(middleware.handle(i18next));
-
-// app.use("/api/v1", authRoutes);
-// app.use("/api/v1/admin", auth, authorize(true, "ADMIN"), adminRoutes);
-// app.use("/api/v1", profileRoutes);
-app.use(routes);
+  
+  app.use(middleware.handle(i18next));
+  
+  // app.use("/api/v1", authRoutes);
+  // app.use("/api/v1/admin", auth, authorize(true, "ADMIN"), adminRoutes);
+  // app.use("/api/v1", profileRoutes);
+  app.use(express.static("upload/images"))
+  app.use(routes);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   const message = error.message || "server error";
@@ -79,6 +81,8 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.status(status).json({ message, error: errorCode });
 });
 
+
+// testing cron job
 // cron.schedule("* * * * *", async () => {
 //   console.log("Cron job is running every minute...");
 //   const maintenance = await getMaintenanceStatusByKey("maintenance");

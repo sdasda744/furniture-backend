@@ -9,12 +9,12 @@ import { maintenanceMode } from "../../middlewares/maintenance";
 
 const router = Router();
 
-// router.use("/api/v1", authRoutes);
-// router.use("/api/v1/users", userRoutes);
-// router.use("/api/v1/admins", auth, authorize(true, "ADMIN"), adminRoutes);
+router.use("/api/v1", authRoutes);
+router.use("/api/v1/users", userRoutes);
+router.use("/api/v1/admins", auth, authorize(true, "ADMIN"), adminRoutes);
 
-router.use("/api/v1",maintenanceMode, authRoutes);
-router.use("/api/v1/users",maintenanceMode, userRoutes);
-router.use("/api/v1/admins", maintenanceMode, auth, authorize(true, "ADMIN"), adminRoutes);
+// router.use("/api/v1",maintenanceMode, authRoutes);
+// router.use("/api/v1/users",maintenanceMode, userRoutes);
+// router.use("/api/v1/admins", maintenanceMode, auth, authorize(true, "ADMIN"), adminRoutes);
 
 export default router;
