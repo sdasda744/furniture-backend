@@ -1,14 +1,13 @@
-import { OnStartResult } from './../../../node_modules/esbuild/lib/main.d';
 import { Request, Response, NextFunction } from "express";
 import { query, body, validationResult } from "express-validator";
 import { authorize } from "../../utils/authorize";
 import { getUserByID, updateUser } from "../../services/authServices";
 import { checkUserIfNotExit } from "../../utils/auth";
-import { checkProfileUpload } from "../../utils/checkProfileUpload";
+import { checkUploadFile } from "../../utils/check";
 import { unlink } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
-import ImageQueue from '../../jobs/queues/imageQueue';
+import ImageQueue from "../../jobs/queues/imageQueue";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -65,7 +64,7 @@ export const uploadProfile = async (
   const image = req.file;
   const user = await getUserByID(userId!);
   checkUserIfNotExit(user);
-  checkProfileUpload(image);
+  checkUploadFile(image);
 
   console.log("image file name is -------", image);
   const fileName = image!.filename;
@@ -126,9 +125,9 @@ export const uploadPhotoOptimize = async (
   const image = req.file;
   const user = await getUserByID(userId!);
   checkUserIfNotExit(user);
-  checkProfileUpload(image);
+  checkUploadFile(image);
 
-  const splitFileName = req.file?.filename.split(".")[0]
+  const splitFileName = req.file?.filename.split(".")[0];
 
   // try {
   //   const imageOptimizePath = path.join(
@@ -147,36 +146,55 @@ export const uploadPhotoOptimize = async (
   //   return;
   // }
 
-  const job = await ImageQueue.add("optimize-image", {
-    filePath: req.file?.path,
-    fileName: `${splitFileName}.webp`
-  })
-
+  const job = await ImageQueue.add(
+    "optimize-image",
+    {
+      filePath: req.file?.path,
+      fileName: `${splitFileName}.webp`,
+      width: 200,
+      height: 200,
+      quality: 50,
+    },
+    {
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 1000,
+      },
+    }
+  );
 
   if (user!.image) {
     try {
-      const originalUploadPath = path.join(__dirname, "../../../", "upload/images", user!.image!);
-      const optimizeUploadPath = path.join(__dirname, "../../..", "upload/optimizes", user!.image!.split(".")[0] + ".webp");
+      const originalUploadPath = path.join(
+        __dirname,
+        "../../../",
+        "upload/images",
+        user!.image!
+      );
+      const optimizeUploadPath = path.join(
+        __dirname,
+        "../../..",
+        "upload/optimizes",
+        user!.image!.split(".")[0] + ".webp"
+      );
 
       await unlink(originalUploadPath);
-      await unlink(optimizeUploadPath)
-
+      await unlink(optimizeUploadPath);
     } catch (error) {
       console.error(error);
     }
   }
 
   const userData = {
-    image: req.file?.filename
-  }
+    image: req.file?.filename,
+  };
 
-  await updateUser(user!.id, userData)
+  await updateUser(user!.id, userData);
 
-  res
-    .status(200)
-    .json({
-      message: "Image optimization successfully.",
-      imageFileName: splitFileName + ".webp",
-      job: job.id
-    });
+  res.status(200).json({
+    message: "Image optimization successfully.",
+    imageFileName: splitFileName + ".webp",
+    job: job.id,
+  });
 };

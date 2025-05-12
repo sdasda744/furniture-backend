@@ -72,12 +72,15 @@ app
   // app.use("/api/v1/admin", auth, authorize(true, "ADMIN"), adminRoutes);
   // app.use("/api/v1", profileRoutes);
   app.use(express.static("upload/images"))
+  app.use(express.static("upload"))
+
   app.use(routes);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   const message = error.message || "server error";
   const status = error.status || 500;
   const errorCode = error.code || "Error_CodeFromServer";
+  console.log(message);
   res.status(status).json({ message, error: errorCode });
 });
 

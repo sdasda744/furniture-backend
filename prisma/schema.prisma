@@ -50,12 +50,12 @@ model Post {
   content   String
   body String
   image String
-  authorID Int
-  author User @relation(fields: [authorID], references: [id])
-  categoryID Int
-  cateogry Category @relation(fields: [categoryID], references: [id])
-  typeID Int 
-  type Type @relation(fields: [typeID], references: [id])
+  authorId Int
+  author User @relation(fields: [authorId], references: [id])
+  categoryId Int
+  category Category @relation(fields: [categoryId], references: [id])
+  typeId Int 
+  type Type @relation(fields: [typeId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tags PostTag[]
@@ -70,10 +70,10 @@ model Product {
   rating Int @db.SmallInt
   inventory Int @db.SmallInt
   status Status @default(ACTIVE)
-  categoryID Int
-  cateogry Category @relation(fields: [categoryID], references: [id])
-  typeID Int 
-  type Type @relation(fields: [typeID], references: [id])
+  categoryId Int
+  category Category @relation(fields: [categoryId], references: [id])
+  typeId Int 
+  type Type @relation(fields: [typeId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   images Image[]
@@ -83,8 +83,8 @@ model Product {
 
 model Image {
   id Int @id @default(autoincrement())
-  productID Int
-  product Product @relation(fields: [productID], references: [id])
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
   path String @db.VarChar(255)
 }
 
@@ -108,8 +108,8 @@ model Order {
   id Int @id @default(autoincrement())
   code String @db.VarChar(15)
   totalPrice Decimal @db.Decimal(10, 2)
-  userID Int
-  user User @relation(fields: [userID], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   order ProductsOnOrder[]
@@ -131,21 +131,21 @@ model ProductsOnOrder {
   id Int @id @default(autoincrement())
   price Decimal @db.Decimal(10, 2)
   quantity Int @db.SmallInt
-  productID Int
-  product Product @relation(fields: [productID], references: [id])
-  orderID Int
-  order Order @relation(fields: [orderID], references: [id])
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+  orderId Int
+  order Order @relation(fields: [orderId], references: [id])
 }
 
 model PostTag {
    id Int @id @default(autoincrement())
-  name String @db.VarChar(52)
+  name String @unique @db.VarChar(52)
   posts Post[]
 }
 
 model ProductTag {
    id Int @id @default(autoincrement())
-  name String @db.VarChar(52)
+  name String @unique @db.VarChar(52)
   products Product[]
 }
 

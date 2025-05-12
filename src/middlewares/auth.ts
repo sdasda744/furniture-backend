@@ -2,11 +2,10 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { Errors } from "../utils/createErrors";
 import { getUserByID, updateUser } from "../services/authServices";
-import { CustomRequest } from "../types";
 
-// interface CustomRequest extends Request {
-//   userId?: number;
-// }
+interface CustomRequest extends Request {
+  userId?: number;
+}
 
 export const auth = (req: CustomRequest, res: Response, next: NextFunction) => {
   const accessToken = req.cookies ? req.cookies.accessToken : null;

@@ -98,9 +98,15 @@ const defaultErrors: Record<string, ErrorConfig> = {
   },
   checkProfileImage: {
     message: "Invalid upload image",
-    status: 400,
-    code: "ERROR_PROFILE_UPLOAD",
+    status: 409,
+    code: "ERROR_UPLOAD",
   },
+
+  modelDoesNotExit: {
+    message: "This model doesn't exit.",
+    status: 401,
+    code: "ERROR_INVALID"
+  }
 };
 
 export const Errors = {
@@ -131,4 +137,5 @@ export const Errors = {
   invalidPhone: () => defaultErrors.invalidPhone,
   maintenanceModeMsg: () => defaultErrors.maintenanceModeMsg,
   checkProfileImage: () => defaultErrors.checkProfileImage,
+  modelDoesNotExit: () => defaultErrors.modelDoesNotExit
 };
