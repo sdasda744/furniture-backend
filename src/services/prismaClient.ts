@@ -23,7 +23,7 @@ export const prisma = new PrismaClient().$extends({
       image: {
         needs: { image: true },
         compute(post) {
-          return "/optimizes" + post.image.split(".")[0] + ".webp";
+          return "/optimizes/" + post.image.split(".")[0] + ".webp";
         },
       },
       updatedAt: {

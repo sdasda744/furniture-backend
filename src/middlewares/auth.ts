@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { Errors } from "../utils/createErrors";
-import { getUserByID, updateUser } from "../services/authServices";
+import { getUserById, updateUser } from "../services/authServices";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -37,7 +37,7 @@ export const auth = (req: CustomRequest, res: Response, next: NextFunction) => {
       return next(new Error(error.message));
     }
 
-    const user = await getUserByID(decoded.id);
+    const user = await getUserById(decoded.id);
     if (!user) {
       const error = Errors.unauthenticated();
       return next(new Error(error.message));

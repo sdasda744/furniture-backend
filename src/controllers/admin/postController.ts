@@ -1,12 +1,13 @@
+import { check } from "./../../middlewares/check";
 import { Request, Response, NextFunction } from "express";
 import { body, query, validationResult } from "express-validator";
 import sanitizeHtml from "sanitize-html";
-import path, { join } from "path";
-import { unlink } from "fs/promises";
+import { unlink } from "node:fs/promises";
+import path from "path";
 
 import { checkUserIfNotExit } from "../../utils/auth";
 import { checkModelIfExist, checkUploadFile } from "../../utils/check";
-import { getUserByID } from "../../services/authServices";
+import { getUserById } from "../../services/authServices";
 import ImageQueue from "../../jobs/queues/imageQueue";
 import {
   createSinglePost,
@@ -23,28 +24,53 @@ interface CustomRequest extends Request {
 
 const removeFile = async (
   originalFile: string,
-  optimizeFile: string | null
+  optimizedFile: string | null
 ) => {
   try {
-    const originalFilePath = join(
-      __dirname,
-      "../../..",
-      "upload/images",
-      originalFile
-    );
-    await unlink(originalFilePath);
+    // get the file name without extension
+    const fileName = path.basename(originalFile);
+    const name = fileName.split(".")[0];
+    console.log('Deleting:', name);
 
-    if (optimizeFile) {
-      const optimizeFilePath = join(
-        __dirname,
-        "../../..",
-        "upload/optimizes",
-        optimizeFile
-      );
-      await unlink(optimizeFilePath);
+   // try to delete the original file
+    const dir = path.resolve(__dirname, '../../../upload/images');
+    const exts = ['.jpg', '.jpeg', '.png'];
+
+    for (const ext of exts) {
+      const filePath = path.join(dir, `${name}${ext}`);
+      try {
+        await unlink(filePath);
+        console.log(`Deleted: ${filePath}`);
+        break; // stop once one is deleted
+      } catch (err: any) {
+        if (err.code === 'ENOENT') {
+          console.log(`Not found (skip): ${filePath}`);
+          continue;
+        }
+        // other errors are real problems—rethrow
+        throw err;
+      }
     }
-  } catch (error) {
-    console.error(error);
+
+    // delete the optimized file if it exists
+    if (optimizedFile) {
+      // don't forget to replace when you change in prisma client file in path /upload/optimizes
+      const optDir = path.resolve(__dirname, '../../../upload');
+      const optPath = path.join(optDir, optimizedFile);
+      try {
+        await unlink(optPath);
+        console.log(`Deleted optimized file: ${optPath}`);
+      } catch (err: any) {
+        if (err.code === 'ENOENT') {
+          console.log(`⟳ Optimized file not found: ${optPath}`);
+        } else {
+          throw err;
+        }
+      }
+    }
+  } catch (err) {
+    // any unexpected error bubbles here
+    console.error('Error in removeFile:', err);
   }
 };
 
@@ -83,7 +109,7 @@ export const createPost = [
     checkUploadFile(req.file);
 
     const userId = req.userId;
-    const user = await getUserByID(userId!);
+    const user = await getUserById(userId!);
     if (!user) {
       if (req.file) {
         await removeFile(req.file.filename, null);
@@ -113,6 +139,7 @@ export const createPost = [
       }
     );
 
+
     const data: PostArgs = {
       title,
       content,
@@ -127,10 +154,10 @@ export const createPost = [
     const post = await createSinglePost(data);
 
     res.status(201).json({
-      success: true,
       message: "Created new post successfully.",
       postId: post.id,
       jobId: job.id,
+      path: post.image,
     });
   },
 ];
@@ -177,7 +204,7 @@ export const updatePost = [
     const { postId, title, body, content, category, type, tags } = req.body;
 
     const userId = req.userId;
-    const user = await getUserByID(userId!);
+    const user = await getUserById(userId!);
     if (!user) {
       if (req.file) {
         await removeFile(req.file.filename, null);
@@ -225,7 +252,7 @@ export const updatePost = [
           fileName: `${splitFileName}.webp`,
           width: 835,
           height: 577,
-          quality: 100,
+          quality: 50,
         },
         {
           attempts: 3,
@@ -243,7 +270,6 @@ export const updatePost = [
     const postUpdated = await updateSinglePost(post.id, postData);
 
     res.status(200).json({
-      success: true,
       message: "Updated a post successfully",
       postId: postUpdated.id,
     });
@@ -262,19 +288,23 @@ export const deletePost = [
 
     const userId = req.userId;
     const postId = req.body.postId;
-    const user = await getUserByID(userId!);
+    const user = await getUserById(userId!);
     const post = await getPostById(+postId);
     checkUserIfNotExit(user);
-    checkModelIfExist(post)
-    
+    checkModelIfExist(post);
+
     if (user!.id !== post!.authorId) {
-      return next(Errors.unauthorized())
+      return next(Errors.unauthorized());
     }
 
     const deletedPost = await deleteSinglePost(post!.id);
+  
     const optimizedFile = post!.image.split(".")[0] + ".webp";
     await removeFile(post!.image, optimizedFile);
 
-    res.status(200).json({message: "Post is deleted successfully.", postId: deletedPost.id})
+    res.status(200).json({
+      message: "Post is deleted successfully.",
+      postId: deletedPost.id,
+    });
   },
 ];

@@ -9,7 +9,7 @@ import {
 } from "../../../controllers/api/profileController";
 import { auth } from "../../../middlewares/auth";
 import upload, { uploadMemory } from "../../../middlewares/uploadFile";
-import { getPost, getPostsByPagination } from "../../../controllers/api/postController";
+import { getPost, getPostsByPagination, getInfinitePostsByPagination } from "../../../controllers/api/postController";
 
 // user routes
 
@@ -32,7 +32,8 @@ router.patch(
 );
 router.get("/profile/my-photo", getMyPhoto);
 
+router.get("/posts", auth, getPostsByPagination); // Offset Pagination
+router.get("/posts/infinite", auth, getInfinitePostsByPagination); // Cursor-based Pagination
 router.get("/posts/:id", auth, getPost);
-router.get("/posts", auth, getPostsByPagination)
 
 export default router;

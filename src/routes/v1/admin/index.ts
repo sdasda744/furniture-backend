@@ -15,6 +15,6 @@ router.post("/maintenance-mode", setMaintenanceMode);
 // CRUD Posts
 router.post("/posts", upload.single("image"), createPost)
 router.patch("/posts", upload.single("image"), updatePost);
-router.delete("/posts", upload.single("image"), deletePost)
+router.delete("/posts", deletePost)
 
 export default router;

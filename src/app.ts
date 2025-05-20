@@ -71,8 +71,8 @@ app
   // app.use("/api/v1", authRoutes);
   // app.use("/api/v1/admin", auth, authorize(true, "ADMIN"), adminRoutes);
   // app.use("/api/v1", profileRoutes);
-  app.use(express.static("upload/images"))
-  app.use(express.static("upload"))
+  // app.use(express.static("upload/images"))
+  // app.use(express.static("upload"))
 
   app.use(routes);
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { query, body, validationResult } from "express-validator";
 import { authorize } from "../../utils/authorize";
-import { getUserByID, updateUser } from "../../services/authServices";
+import { getUserById, updateUser } from "../../services/authServices";
 import { checkUserIfNotExit } from "../../utils/auth";
 import { checkUploadFile } from "../../utils/check";
 import { unlink } from "node:fs/promises";
@@ -40,7 +40,7 @@ export const testPermission = async (
   next: NextFunction
 ) => {
   const userId = req.userId;
-  const user = await getUserByID(userId!);
+  const user = await getUserById(userId!);
   checkUserIfNotExit(user);
 
   const info: any = {
@@ -62,7 +62,7 @@ export const uploadProfile = async (
 ) => {
   const userId = req.userId;
   const image = req.file;
-  const user = await getUserByID(userId!);
+  const user = await getUserById(userId!);
   checkUserIfNotExit(user);
   checkUploadFile(image);
 
@@ -123,7 +123,7 @@ export const uploadPhotoOptimize = async (
 ) => {
   const userId = req.userId;
   const image = req.file;
-  const user = await getUserByID(userId!);
+  const user = await getUserById(userId!);
   checkUserIfNotExit(user);
   checkUploadFile(image);
 

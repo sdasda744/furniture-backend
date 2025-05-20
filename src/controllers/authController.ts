@@ -12,7 +12,7 @@ import {
   getOtpByVerifyToken,
   getPhoneAndRememberToken,
   getPhoneAndVerifyToken,
-  getUserByID,
+  getUserById,
   getUserByPhone,
   updateOtp,
   updateUser,
@@ -123,7 +123,6 @@ export const register = [
     }
 
     res.status(200).json({
-      success: true,
       message: `OTP sent successfully to ${result.phone}`,
       token: result.rememberToken,
     });
@@ -231,7 +230,6 @@ export const verifyOtp = [
     const result = await updateOtp(existingOtpRecord!.id, otpData);
 
     res.status(200).json({
-      success: true,
       message: "OTP is successfully verified",
 
       id: result.id,
@@ -359,7 +357,6 @@ export const confirmPassword = [
       })
       .status(200)
       .json({
-        success: true,
         message: "User account is created successfully",
         id: newUser.id,
         phone: newUser.phone,
@@ -479,7 +476,6 @@ export const login = [
       })
       .status(200)
       .json({
-        success: true,
         message: "login",
         id: user!.id,
         role: user!.role,
@@ -513,7 +509,7 @@ export const logout = async (
     return next(Errors.unauthenticated());
   }
 
-  const user = await getUserByID(decoded.id);
+  const user = await getUserById(decoded.id);
   checkUserIfNotExit(user);
 
   if (user!.phone !== decoded.phone) {
@@ -528,7 +524,6 @@ export const logout = async (
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   res.status(200).json({
-    success: true,
     message: "successfully logout.",
   });
 };
@@ -626,7 +621,6 @@ export const forgotPassword = [
     }
 
     res.status(200).json({
-      success: true,
       otpID: result!.id,
       message: `OTP sent successfully to ${result!.phone}`,
       token: result!.rememberToken,
@@ -764,7 +758,6 @@ export const verifyOtpForResetPassword = [
     const result = await updateOtp(existingOtpRecord!.id, otpData);
 
     res.status(200).json({
-      success: true,
       message: "OTP is successfully verified",
       otpID: result.id,
       token: result.rememberToken,
@@ -903,7 +896,6 @@ export const confirmResetPassword = [
     await updateOtp(existingOtpRecord.id, otpData);
 
     res.status(200).json({
-      success: true,
       message: "Password reset successfully.",
       userID: user.id,
       phone: user.phone,

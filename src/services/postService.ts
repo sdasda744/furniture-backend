@@ -15,7 +15,7 @@ export type PostArgs = {
 };
 
 export const createSinglePost = async (postData: PostArgs) => {
-  let data: any = {
+  const data: any = {
     title: postData.title,
     content: postData.content,
     body: postData.body,
@@ -115,8 +115,9 @@ export const getPostWithRelations = async (id: number) => {
       updatedAt: true,
       author: {
         select: {
-          firstName: true,
-          lastName: true,
+          // firstName: true,
+          // lastName: true,
+          fullName: true
         },
       },
       type: {
@@ -137,3 +138,7 @@ export const getPostWithRelations = async (id: number) => {
     },
   });
 };
+
+export const  getPostLists = async (options: any) => {
+  return await prisma.post.findMany(options)
+}

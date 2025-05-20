@@ -3,12 +3,7 @@ import { Redis } from "ioredis";
 import sharp from "sharp";
 import path from "path";
 
-const connection = new Redis({
-  host: process.env.REDIS_HOST,
-  port: parseInt(process.env.REDIS_PORT!) || 6379,
-  maxRetriesPerRequest: null
-
-});
+import { redis } from "../../config/redisClient";
 
 const imageWorker = new Worker(
   "imageQueue",
@@ -18,15 +13,15 @@ const imageWorker = new Worker(
     const optimizeImage = path.join(
       __dirname,
       "../../..",
-      "upload/optimizes",
+      "/upload/optimizes",
       fileName
     );
     await sharp(filePath)
       .resize(width, height)
-      .webp({ quality: quality })
+      .webp({ quality })
       .toFile(optimizeImage);
   },
-  { connection }
+  { connection: redis }
 );
 
 imageWorker.on("completed", (job) => {
