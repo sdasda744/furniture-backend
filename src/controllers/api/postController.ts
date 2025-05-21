@@ -9,6 +9,7 @@ import {
   getPostLists,
   getPostWithRelations,
 } from "../../services/postService";
+import { getOrSetCache } from "../../utils/cache";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -30,7 +31,14 @@ export const getPost = [
     const user = await getUserById(userId!);
     checkUserIfNotExit(user);
 
-    const post = await getPostWithRelations(postId!);
+    // const post = await getOrSetCache(`post:${postId}`, async () => {
+    //   return await getPostById(postId);
+    // });
+    const cacheKey = `posts:${JSON.stringify(postId)}`
+    const post = await getOrSetCache(cacheKey, async () => {
+      return await getPostById(postId);
+    });
+    // const post = await getPostWithRelations(postId!);
 
     // if (!post) {
     //   const error: any = new Error("Post not found");
@@ -100,18 +108,22 @@ export const getPostsByPagination = [
       },
     };
 
-    const posts = await getPostLists(options);
+    const cacheKey = `posts:${JSON.stringify(req.query)}`;
+    const posts = await getOrSetCache(cacheKey, async () => {
+      return await getPostLists(options);
+    })
+    // const posts = await getPostLists(options);
 
     const previousPage = +page !== 1 ? +page - 1 : null;
 
     const hasNextPage = posts.length > +limit;
-    console.log(posts.length, +limit);
+    // console.log(posts.length, +limit);
     let nextPage = null;
     if (hasNextPage) {
       posts.pop();
       nextPage = +page + 1;
     }
-    console.log("next page is ", nextPage);
+    // console.log("next page is ", nextPage);
 
     res.status(200).json({
       message: "Get all posts",
@@ -215,11 +227,13 @@ export const getInfinitePostsByPagination = [
       },
     };
 
-    const posts = await getPostLists(options);
-    console.log(posts.length);
+    // const posts = await getPostLists(options);
+    const cacheKey = `posts:${JSON.stringify(req.query)}`;
+    const posts = await getOrSetCache(cacheKey, async () => {
+      return await getPostLists(options);
+    })
 
     const hasNextPage = posts.length > +limit;
-
     if (hasNextPage) {
       posts.pop();
     }

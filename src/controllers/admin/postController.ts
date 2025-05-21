@@ -17,6 +17,7 @@ import {
   updateSinglePost,
 } from "../../services/postService";
 import { Errors } from "../../utils/createErrors";
+import CacheQueue from "../../jobs/queues/cacheQueue";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -30,11 +31,11 @@ const removeFile = async (
     // get the file name without extension
     const fileName = path.basename(originalFile);
     const name = fileName.split(".")[0];
-    console.log('Deleting:', name);
+    console.log("Deleting:", name);
 
-   // try to delete the original file
-    const dir = path.resolve(__dirname, '../../../upload/images');
-    const exts = ['.jpg', '.jpeg', '.png'];
+    // try to delete the original file
+    const dir = path.resolve(__dirname, "../../../upload/images");
+    const exts = [".jpg", ".jpeg", ".png"];
 
     for (const ext of exts) {
       const filePath = path.join(dir, `${name}${ext}`);
@@ -43,7 +44,7 @@ const removeFile = async (
         console.log(`Deleted: ${filePath}`);
         break; // stop once one is deleted
       } catch (err: any) {
-        if (err.code === 'ENOENT') {
+        if (err.code === "ENOENT") {
           console.log(`Not found (skip): ${filePath}`);
           continue;
         }
@@ -55,13 +56,13 @@ const removeFile = async (
     // delete the optimized file if it exists
     if (optimizedFile) {
       // don't forget to replace when you change in prisma client file in path /upload/optimizes
-      const optDir = path.resolve(__dirname, '../../../upload');
+      const optDir = path.resolve(__dirname, "../../../upload");
       const optPath = path.join(optDir, optimizedFile);
       try {
         await unlink(optPath);
         console.log(`Deleted optimized file: ${optPath}`);
       } catch (err: any) {
-        if (err.code === 'ENOENT') {
+        if (err.code === "ENOENT") {
           console.log(`⟳ Optimized file not found: ${optPath}`);
         } else {
           throw err;
@@ -70,7 +71,7 @@ const removeFile = async (
     }
   } catch (err) {
     // any unexpected error bubbles here
-    console.error('Error in removeFile:', err);
+    console.error("Error in removeFile:", err);
   }
 };
 
@@ -139,7 +140,6 @@ export const createPost = [
       }
     );
 
-
     const data: PostArgs = {
       title,
       content,
@@ -152,6 +152,13 @@ export const createPost = [
     };
 
     const post = await createSinglePost(data);
+
+    await CacheQueue.add("invalidate-cache-posts", {
+      pattern: "posts:*",
+    }, {
+      jobId: `job id is ${Date.now()}`,
+      priority: 1,
+    });
 
     res.status(201).json({
       message: "Created new post successfully.",
@@ -269,6 +276,13 @@ export const updatePost = [
 
     const postUpdated = await updateSinglePost(post.id, postData);
 
+    await CacheQueue.add("invalidate-cache-posts", {
+      pattern: "posts:*",
+    }, {
+      jobId: `job id is ${Date.now()}`,
+      priority: 1,
+    });
+
     res.status(200).json({
       message: "Updated a post successfully",
       postId: postUpdated.id,
@@ -298,9 +312,16 @@ export const deletePost = [
     }
 
     const deletedPost = await deleteSinglePost(post!.id);
-  
+
     const optimizedFile = post!.image.split(".")[0] + ".webp";
     await removeFile(post!.image, optimizedFile);
+
+    await CacheQueue.add("invalidate-cache-posts", {
+      pattern: "posts:*",
+    }, {
+      jobId: `job id is ${Date.now()}`,
+      priority: 1,
+    });
 
     res.status(200).json({
       message: "Post is deleted successfully.",

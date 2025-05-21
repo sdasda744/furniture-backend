@@ -4,8 +4,9 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "dev": "concurrently -n SERVER,WORKER -c green,blue \"nodemon src/index.ts\" \"nodemon src/jobs/workers/imageWorker.ts\"",
+    "dev": "concurrently -n SERVER,WORKER -c green,blue \"nodemon src/index.ts\" \"nodemon src/jobs/workers/imageWorker.ts\" \"nodemon src/jobs/workers/cacheWorker.ts\"",
     "work": "nodemon src/jobs/workers/imageWorker.ts",
+    "cache": "nodemon src/jobs/workers/cacheWorker.ts",
     "build": "tsc -p .",
     "start": "node dist/index.js"
   },
